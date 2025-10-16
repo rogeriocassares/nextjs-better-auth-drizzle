@@ -1,3 +1,8 @@
+import { Logout } from "@/components/logout";
+
 export default async function Page() {
-  return <h1>Dashboard Page</h1>;
+  return (
+  <div className="flex flex-col items-center justify-center h-screen">
+    <Logout/>
+  </div>)
 }

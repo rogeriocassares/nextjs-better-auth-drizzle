@@ -38,11 +38,12 @@ import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 
 const formSchema = z.object({
+  username: z.string().min(3),
   email: z.string().email(),
   password: z.string().min(8),
 });
 
-export function LoginForm({
+export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
@@ -67,7 +68,7 @@ export function LoginForm({
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    const {success, message} = await signIn(values.email, values.password);
+    const {success, message} = await signUp(values.email, values.password, values.username);
 
   if (success) {
     toast.success(message as string)
@@ -85,14 +86,14 @@ export function LoginForm({
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
           <CardDescription>
-            Login with your Google account
+            Signup with your Google account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               {" "}
-              <FieldGroup>
+              <FieldGroup className="gap-2">
                 <Field>
                   <Button variant="outline" onClick={signInWithGoogle} type="button">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -101,13 +102,28 @@ export function LoginForm({
                         fill="currentColor"
                       />
                     </svg>
-                    Login with Google
+                    Signup with Google
                   </Button>
                 </Field>
                 <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                   Or continue with
                 </FieldSeparator>
-                <Field className="gap-2 flex flex-col">
+                <Field>
+                  <FormField
+                    control={form.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Username</FormLabel>
+                        <FormControl>
+                          <Input placeholder="User" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  </Field>
+                  <Field>
                   <FormField
                     control={form.control}
                     name="email"
@@ -121,8 +137,8 @@ export function LoginForm({
                       </FormItem>
                     )}
                   />
-                  {/*</Field>
-                <Field>*/}
+                  </Field>
+                <Field>
                   <FormField
                     control={form.control}
                     name="password"
@@ -153,12 +169,12 @@ export function LoginForm({
                       isLoading ? (
                         <Loader2 className="size-4 animate-spin"/>
                       ) : (
-                        "Login"
+                        "Signup"
                       )
                     }
                   </Button>
                   <FieldDescription className="text-center">
-                    Don&apos;t have an account? <Link href="/signup">Sign up</Link>
+                    Do you have an account? <Link href="/login">Login</Link>
                   </FieldDescription>
                 </Field>
               </FieldGroup>

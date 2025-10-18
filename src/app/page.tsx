@@ -1,21 +1,39 @@
-
-import { signIn, signUp } from "@/app/server/users";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import SignOut from "./signOut";
+import { ModeSwitcher } from "@/components/mode-switcher";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import Link from "next/link";
 
-export default async function Home() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
+export default function Home() {
   return (
-    <main className="flex flex-col items-center justify-center h-screen">
-      <Button variant="outline" onClick={signIn} >Sign In</Button>
-      <Button variant="outline" onClick={signUp}>Sign Up</Button>
-      <SignOut />
-      <p>{!session ? "Not authenticated" : session.user.name}</p>
-    </main>
+    <>
+      <header className="absolute top-0 right-0 flex justify-end items-center p-4">
+        <ModeSwitcher />
+      </header>
+      <div className="flex flex-col gap-5 items-center justify-center h-screen px-5 text-center">
+        <Image
+          src="/better-auth-starter.png"
+          alt="Better Auth"
+          width={100}
+          height={100}
+          className="rounded-lg dark:invert"
+        />
+
+        <h1 className="text-4xl font-bold">Better Auth Starter</h1>
+
+        <p className="text-lg">
+          This is a starter project for Better Auth. It is a simple project that
+          uses Better Auth to authenticate users.
+        </p>
+
+        <div className="flex gap-2">
+          <Link href="/login">
+            <Button>Login</Button>
+          </Link>
+          <Link href="/signup">
+            <Button>Signup</Button>
+          </Link>
+        </div>
+      </div>
+    </>
   );
 }

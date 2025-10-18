@@ -6,30 +6,34 @@ import { nextCookies } from "better-auth/next-js";
 import { Resend } from "resend";
 import ForgotPasswordEmail from "@/components/emails/reset-password";
 import VerifyEmail from "@/components/emails/verify-email";
+import { organization } from "better-auth/plugins"
+
 
 const resend = new Resend(process.env.RSEND_API_KEY as string);
 
 export const auth = betterAuth({
   emailVerification: {
-    sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url }) => {
       resend.emails.send({
-        from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}}>`,
+        from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
+        //from: "onboarding@resend.dev",
         to: user.email,
         subject: "Verify your email address",
         react: VerifyEmail({ username: user.name, verifyUrl: url }),
       });
     },
+    sendOnSignUp: true,
   },
+ 
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
+
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
       resend.emails.send({
         from: "onboarding@resend.dev",
@@ -42,10 +46,11 @@ export const auth = betterAuth({
         }),
       });
     },
+    requireEmailVerification: true,
   },
   database: drizzleAdapter(db, {
     provider: "pg", // or "mysql", "sqlite"
     schema,
   }),
-  plugins: [nextCookies()],
+  plugins: [organization(), nextCookies()],
 });

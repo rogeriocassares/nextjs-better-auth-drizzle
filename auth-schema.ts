@@ -95,5 +95,3 @@ export const invitation = pgTable("invitation", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
 });
-
-export const schema = { user, session, account, verification, organization, member, invitation };

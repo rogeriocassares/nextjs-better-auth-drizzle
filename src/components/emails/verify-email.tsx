@@ -57,7 +57,7 @@ const VerifyEmail = (props: VerifyEmailProps) => {
                 Having trouble with the button? Copy and paste this link into
                 your browser:
                 <br />
-                https://example.com/verify-email
+                {verifyUrl}
               </Text>
             </Section>
 

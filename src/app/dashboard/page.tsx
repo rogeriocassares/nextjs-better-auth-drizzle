@@ -1,6 +1,7 @@
 import { CreateOrganizationForm } from "@/components/forms/create-organization-form";
 import { Logout } from "@/components/logout";
 import { Button } from "@/components/ui/button";
+import { organization } from '../../db/schema';
 
 import {
   Dialog,
@@ -14,6 +15,7 @@ import {
 export default async function Page() {
   return (
     <div className="flex flex-col gap-2 items-center justify-center h-screen">
+   
       <Logout />
 
       <Dialog>

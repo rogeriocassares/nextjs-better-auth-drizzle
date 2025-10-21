@@ -6,8 +6,9 @@ import { nextCookies } from "better-auth/next-js";
 import { Resend } from "resend";
 import ForgotPasswordEmail from "@/components/emails/reset-password";
 import VerifyEmail from "@/components/emails/verify-email";
-import { organization } from "better-auth/plugins"
 import { getActiveOrganization } from "@/app/server/organizations";
+import { ac, admin, owner, member  } from "./auth/permissions";
+import { organization } from "better-auth/plugins/organization";
 
 
 const resend = new Resend(process.env.RSEND_API_KEY as string);
@@ -68,5 +69,12 @@ export const auth = betterAuth({
     provider: "pg", // or "mysql", "sqlite"
     schema,
   }),
-  plugins: [organization(), nextCookies()],
+  plugins: [organization({
+    ac,
+            roles: {
+                owner,
+                admin,
+                member,
+            }
+  }), nextCookies()],
 });

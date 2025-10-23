@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, pgEnum } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -77,6 +77,10 @@ export const organizationRelations = relations(organization, ({many}) => ({
 
 export type Organization = typeof organization.$inferSelect
 
+export const role = pgEnum("role",["member", "admin","owner"])
+
+export type Role = (typeof role.enumValues)[number]
+
 export const member = pgTable("member", {
   id: text("id").primaryKey(),
   organizationId: text("organization_id")
@@ -85,7 +89,7 @@ export const member = pgTable("member", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  role: text("role").default("member").notNull(),
+  role: role("role").default("member").notNull(),
   createdAt: timestamp("created_at").notNull(),
 });
 
@@ -100,9 +104,12 @@ export const memberRelations = relations(member, ({one}) => ({
   }),
 }))
 
+
 export type Member = typeof member.$inferSelect & {
   user: typeof user.$inferSelect
 }
+
+export type User = typeof user.$inferSelect
 
 export const invitation = pgTable("invitation", {
   id: text("id").primaryKey(),

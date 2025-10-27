@@ -1,31 +1,36 @@
-"use server"
+"use server";
 
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export const isAdmin = async () => {
   try {
-    const {success, error} = await auth.api.hasPermission({
+    const { success, error } = await auth.api.hasPermission({
       headers: await headers(),
       body: {
         permissions: {
-          project: ["create", "update", "delete"]
-        }
-      }
-    })
+          project: ["create", "update", "delete"],
+        },
+      },
+    });
+
+    console.log(`### success: ${success}`);
+    console.log(`### error: ${error}`);
 
     if (error) {
-      return{
+      return {
         success: false,
-        error: error || "Failed to check permissions."
-      }
+        error: error || "Failed to check permissions.",
+      };
     }
-    return success
+    return success;
   } catch (error) {
-    console.error(error)
+    console.log(`error: ${error}`);
+
+    console.error(error);
     return {
-      success:false,
-      error: error || "Failed to check permissions."
-    }
+      success: false,
+      error: error || "Failed to check permissions.",
+    };
   }
-}
+};

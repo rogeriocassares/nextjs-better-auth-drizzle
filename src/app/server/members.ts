@@ -1,47 +1,52 @@
-"use server"
+"use server";
 
 import { db } from "@/db/drizzle";
 import { member, Role } from "@/db/schema";
-import { auth } from "@/lib/auth"
+import { auth } from "@/lib/auth";
 import { eq } from "drizzle-orm";
 import { isAdmin } from "./permissions";
 
-export const addMember = async (organizationId: string, userId: string, role: Role) => {
+export const addMember = async (
+  organizationId: string,
+  userId: string,
+  role: Role,
+) => {
   try {
     await auth.api.addMember({
       body: {
-          userId,
-          organizationId,
-          role,
+        userId,
+        organizationId,
+        role,
       },
-  });
+    });
   } catch (error) {
-    console.error(error)
-    throw new Error("Failed to add a member.")
+    console.error(error);
+    throw new Error("Failed to add a member.");
   }
-}
+};
 
 export const removeMember = async (memberId: string) => {
-  const admin = await isAdmin()
+  const admin = await isAdmin();
 
   if (!admin) {
     return {
       success: false,
-      error: "You are not authorized to remove members."
-    }
+      error: "You are not authorized to remove members.",
+    };
   }
+  console.log(`admin: ${JSON.stringify(admin)}`);
 
   try {
-    await db.delete(member).where(eq(member.id, memberId))
+    await db.delete(member).where(eq(member.id, memberId));
     return {
       success: true,
-      error: null
-    }
+      error: null,
+    };
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return {
       success: false,
-      error: "Failed to remove a member."
-    }
+      error: "Failed to remove a member.",
+    };
   }
-}
+};

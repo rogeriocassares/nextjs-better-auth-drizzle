@@ -1,7 +1,7 @@
+import Link from "next/link";
 import { CreateOrganizationForm } from "@/components/forms/create-organization-form";
 import { Logout } from "@/components/logout";
 import { Button } from "@/components/ui/button";
-
 import {
   Dialog,
   DialogContent,
@@ -9,15 +9,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { getOrganizations } from "@/app/server/organizations";
-import Link from "next/link";
+} from "@/components/ui/dialog";
+import { getOrganizations } from "@/server/organizations";
 
 export default async function Page() {
-  const organizations = await getOrganizations()
+  const organizations = await getOrganizations();
   return (
     <div className="flex flex-col gap-2 items-center justify-center h-screen">
-
       <Logout />
 
       <Dialog>
@@ -45,5 +43,6 @@ export default async function Page() {
           </Button>
         ))}
       </div>
-    </div>)
+    </div>
+  );
 }

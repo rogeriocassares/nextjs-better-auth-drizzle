@@ -1,9 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-
-import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,7 +17,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Field, FieldDescription, FieldGroup } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -22,14 +25,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-import { z } from "zod";
-import { toast } from "sonner";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
-import Link from "next/link";
+import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   password: z.string().min(8),
@@ -66,7 +64,7 @@ export function ResetPasswordForm({
 
     const { error } = await authClient.resetPassword({
       newPassword: values.password, // required
-      token,
+      token: token ?? undefined,
     });
 
     if (error) {
@@ -141,8 +139,9 @@ export function ResetPasswordForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our{" "}
+        <Link href="/terms">Terms of Service</Link> and{" "}
+        <Link href="/privacy">Privacy Policy</Link>.
       </FieldDescription>
     </div>
   );

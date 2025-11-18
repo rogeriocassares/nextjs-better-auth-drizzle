@@ -1,22 +1,24 @@
-"use client"
+"use client";
 
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
+import type { Organization } from "@/db/schema";
 import { authClient } from "@/lib/auth-client";
-import { Organization } from '@/db/schema';
-import { toast } from "sonner";
 
 interface organizationSwitcherProps {
-  organizations: Organization[]
+  organizations: Organization[];
 }
 
-export function OrganizationSwitcher({ organizations, }: organizationSwitcherProps) {
-  const { data: activeOrganization } = authClient.useActiveOrganization()
+export function OrganizationSwitcher({
+  organizations,
+}: organizationSwitcherProps) {
+  const { data: activeOrganization } = authClient.useActiveOrganization();
 
   const handleChangeOrganization = async (organizationId: string) => {
     try {
@@ -25,28 +27,29 @@ export function OrganizationSwitcher({ organizations, }: organizationSwitcherPro
       });
 
       if (error) {
-        toast.error("Failed to switch organization.")
-        return
+        toast.error("Failed to switch organization.");
+        return;
       }
-      toast.success("Organization switched successfully")
-    } catch (error) {
-      toast.error("Failed to switch organization.")
+      toast.success("Organization switched successfully");
+    } catch (_error) {
+      toast.error("Failed to switch organization.");
     }
-  }
+  };
   return (
-    <Select onValueChange={handleChangeOrganization} value={activeOrganization?.id}>
+    <Select
+      onValueChange={handleChangeOrganization}
+      value={activeOrganization?.id}
+    >
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Theme" />
       </SelectTrigger>
       <SelectContent>
-        {
-          organizations.map((organization) => (
-            <SelectItem key={organization.id} value={organization.id}>
-              {organization.name}
-            </SelectItem>
-          ))
-        }
+        {organizations.map((organization) => (
+          <SelectItem key={organization.id} value={organization.id}>
+            {organization.name}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
-  )
+  );
 }

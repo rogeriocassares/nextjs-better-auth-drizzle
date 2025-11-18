@@ -1,15 +1,15 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "@/db/drizzle"; // your drizzle instance
-import { schema } from "@/db/schema";
 import { nextCookies } from "better-auth/next-js";
+import { lastLoginMethod, organization } from "better-auth/plugins";
 import { Resend } from "resend";
+import OrganizationInvitationEmail from "@/components/emails/organization-invitation";
 import ForgotPasswordEmail from "@/components/emails/reset-password";
 import VerifyEmail from "@/components/emails/verify-email";
-import { getActiveOrganization } from "@/app/server/organizations";
-import { ac, admin, owner, member  } from "./auth/permissions";
-import { organization } from "better-auth/plugins/organization";
-
+import { db } from "@/db/drizzle"; // your drizzle instance
+import { schema } from "@/db/schema";
+import { getActiveOrganization } from "@/server/organizations";
+import { admin, member, owner } from "./auth/permissions";
 
 const resend = new Resend(process.env.RSEND_API_KEY as string);
 
@@ -18,7 +18,6 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url }) => {
       resend.emails.send({
         from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
-        //from: "onboarding@resend.dev",
         to: user.email,
         subject: "Verify your email address",
         react: VerifyEmail({ username: user.name, verifyUrl: url }),
@@ -26,14 +25,12 @@ export const auth = betterAuth({
     },
     sendOnSignUp: true,
   },
- 
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
-
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }) => {
@@ -66,15 +63,33 @@ export const auth = betterAuth({
     },
   },
   database: drizzleAdapter(db, {
-    provider: "pg", // or "mysql", "sqlite"
+    provider: "pg",
     schema,
   }),
-  plugins: [organization({
-    ac,
-            roles: {
-                owner,
-                admin,
-                member,
-            }
-  }), nextCookies()],
+  plugins: [
+    organization({
+      async sendInvitationEmail(data) {
+        const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/api/accept-invitation/${data.id}`;
+        resend.emails.send({
+          from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
+          to: data.email,
+          subject: `You've invited to join our organization`,
+          react: OrganizationInvitationEmail({
+            email: data.email,
+            invitedByUsername: data.inviter.user.name,
+            invitedByEmail: data.inviter.user.email,
+            teamName: data.organization.name,
+            inviteLink,
+          }),
+        });
+      },
+      roles: {
+        owner,
+        admin,
+        member,
+      },
+    }),
+    lastLoginMethod(),
+    nextCookies(),
+  ],
 });

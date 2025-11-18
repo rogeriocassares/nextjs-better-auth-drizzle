@@ -1,9 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-
-import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { z } from "zod";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,7 +23,6 @@ import {
   FieldGroup,
   FieldSeparator,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -27,15 +31,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { signIn } from "@/app/server/users";
-
-import { z } from "zod";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { signIn } from "@/server/users";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -46,6 +45,8 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const lastMethod = authClient.getLastUsedLoginMethod();
+
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   // 1. Define your form.
@@ -93,16 +94,28 @@ export function LoginForm({
                 <Field>
                   <Button
                     variant="outline"
+                    className="w-full relative"
                     onClick={signInWithGoogle}
                     type="button"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      role="img"
+                      aria-labelledby="google-icon"
+                    >
+                      <title id="google-icon">Google logo</title>
                       <path
                         d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
                         fill="currentColor"
                       />
                     </svg>
                     Login with Google
+                    {lastMethod === "google" && (
+                      <Badge className="absolute right-2 text-[9px]">
+                        last used
+                      </Badge>
+                    )}
                   </Button>
                 </Field>
                 <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
@@ -114,7 +127,13 @@ export function LoginForm({
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <div className="flex items-center justify-between">
+                          <FormLabel>Email</FormLabel>
+                          {lastMethod === "email" && (
+                            <Badge className="text-[9px]">last used</Badge>
+                          )}
+                        </div>
+
                         <FormControl>
                           <Input placeholder="mail@example.com" {...field} />
                         </FormControl>
@@ -167,8 +186,9 @@ export function LoginForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our{" "}
+        <a href="/terms">Terms of Service</a> and{" "}
+        <a href="/privacy">Privacy Policy</a>.
       </FieldDescription>
     </div>
   );

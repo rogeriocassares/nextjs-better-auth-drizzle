@@ -1,35 +1,34 @@
 "use server";
 
-import { db } from "@/db/drizzle";
-import { member, user } from "@/db/schema";
-import { auth } from "@/lib/auth";
 import { eq, notInArray } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { db } from "@/db/drizzle";
+import { member, user } from "@/db/schema";
+import { auth } from "@/lib/auth";
 
 export const getCurrentUser = async () => {
-
-const session = await auth.api.getSession({
-    headers: await headers()
-  })
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   if (!session) {
-    redirect("/login")
+    redirect("/login");
   }
 
   const currentUser = await db.query.user.findFirst({
-    where: eq(user.id, session.user.id)
-  })
+    where: eq(user.id, session.user.id),
+  });
 
   if (!currentUser) {
-    redirect("/login")
+    redirect("/login");
   }
 
   return {
     ...session,
-    currentUser
-  }
-}
+    currentUser,
+  };
+};
 
 export const signIn = async (email: string, password: string) => {
   try {
@@ -41,18 +40,22 @@ export const signIn = async (email: string, password: string) => {
     });
     return {
       success: true,
-      message: "Signed successfully."
-    }
+      message: "Signed successfully.",
+    };
   } catch (error) {
-    const e = error as Error
+    const e = error as Error;
     return {
       success: false,
       message: e.message || "An unknown error occurred.",
-    }
-  };
-}
+    };
+  }
+};
 
-export const signUp = async (email: string, password: string, username: string) => {
+export const signUp = async (
+  email: string,
+  password: string,
+  username: string,
+) => {
   try {
     await auth.api.signUpEmail({
       body: {
@@ -63,29 +66,32 @@ export const signUp = async (email: string, password: string, username: string) 
     });
     return {
       success: true,
-      message: "Signed successfully."
-    }
+      message: "Signed successfully.",
+    };
   } catch (error) {
-    const e = error as Error
+    const e = error as Error;
     return {
       success: false,
       message: e.message || "An unknown error occurred.",
-    }
-  };
-}
+    };
+  }
+};
 
 export const getUsers = async (organizationId: string) => {
   try {
     const members = await db.query.member.findMany({
-      where: eq(member.organizationId, organizationId)
-    })
+      where: eq(member.organizationId, organizationId),
+    });
 
     const users = await db.query.user.findMany({
-      where: notInArray(user.id, members.map((member) => member.userId))
-    })
-    return users
+      where: notInArray(
+        user.id,
+        members.map((member) => member.userId),
+      ),
+    });
+    return users;
   } catch (error) {
-    console.error(error)
-    return []
+    console.error(error);
+    return [];
   }
-}
+};

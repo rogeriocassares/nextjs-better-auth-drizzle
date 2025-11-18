@@ -1,7 +1,7 @@
-import { ModeSwitcher } from "@/components/mode-switcher";
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { ModeSwitcher } from "@/components/mode-switcher";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (

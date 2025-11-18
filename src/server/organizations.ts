@@ -1,7 +1,7 @@
 "use server";
-import { member, organization } from "@/db/schema";
-import { db } from "@/db/drizzle";
 import { eq, inArray } from "drizzle-orm";
+import { db } from "@/db/drizzle";
+import { member, organization } from "@/db/schema";
 import { getCurrentUser } from "./users";
 
 export async function getOrganizations() {
@@ -14,7 +14,7 @@ export async function getOrganizations() {
   const organizations = await db.query.organization.findMany({
     where: inArray(
       organization.id,
-      members.map((member) => member.organizationId)
+      members.map((member) => member.organizationId),
     ),
   });
 
@@ -23,19 +23,18 @@ export async function getOrganizations() {
 
 export async function getActiveOrganization(userId: string) {
   const memberUser = await db.query.member.findFirst({
-    where: eq(member.id, userId)
-  })
+    where: eq(member.id, userId),
+  });
 
   if (!memberUser) {
-    return null
+    return null;
   }
 
   const activeOrganization = await db.query.organization.findFirst({
-    where: eq(organization.id, memberUser.organizationId)
-  })
-  return activeOrganization
+    where: eq(organization.id, memberUser.organizationId),
+  });
+  return activeOrganization;
 }
-
 
 export async function getOrganizationBySlug(slug: string) {
   try {
@@ -44,14 +43,14 @@ export async function getOrganizationBySlug(slug: string) {
       with: {
         members: {
           with: {
-            user: true
-          }
-        }
-      }
-    })
-    return organizationBySlug
+            user: true,
+          },
+        },
+      },
+    });
+    return organizationBySlug;
   } catch (error) {
-    console.error(error)
-    return null
+    console.error(error);
+    return null;
   }
 }

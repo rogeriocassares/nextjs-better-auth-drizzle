@@ -1,7 +1,7 @@
+import { OrganizationSwitcher } from "@/components/organization-switcher";
+import { getOrganizations } from "@/server/organizations";
 import { Logout } from "./logout";
 import { ModeSwitcher } from "./mode-switcher";
-import { OrganizationSwitcher } from "@/components/organization-switcher";
-import { getOrganizations } from "@/app/server/organizations";
 
 export async function Header() {
   const organizations = await getOrganizations();
